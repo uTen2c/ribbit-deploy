@@ -1,0 +1,22 @@
+name: ribbit
+
+services:
+  velocity:
+    image: ghcr.io/uten2c/ribbit-velocity:latest
+    ports:
+      - "25565:25565"
+      - "25582:25582"
+    environment:
+      VELOCITY_FORWARDING_SECRET: ${FORWARDING_SECRET:?.env に FORWARDING_SECRET を書く}
+      RELAY_SECRET: ${RELAY_SECRET:?.env に RELAY_SECRET を書く}
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.0
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?.env に TUNNEL_TOKEN を書く}
+    depends_on: [velocity]
+    restart: unless-stopped
